@@ -91,8 +91,8 @@ void h1_el_mom( std::string file_name){
     std::string save_file_path ("invalid");
 
 
-    save_file_path = "../output/h1_el_mom/"+TString(info)+TString(cuts)+"MottXSecEq1.pdf"; 
-    c->SaveAs( TString::Format("%s", save_file_path.c_str()));
+    save_file_path = "../output2/h1_el_mom/"+TString(info)+TString(cuts)+"MottXSecEq1.pdf"; 
+//    c->SaveAs( TString::Format("%s", save_file_path.c_str()));
 
     // smithja: this section of code integrates the distribution and prints it to the screen
     int num_events = h1_el_momentum[5]->Integral();

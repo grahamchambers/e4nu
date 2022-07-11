@@ -44,16 +44,16 @@ void h1_prot_mom( int range){
     std::string file_name2;
 
     if (range == 1) {
-        file_name1 = "/genie/app/users/nsteinbe/e4nu/CLAS/GENIE/Second_try/Excl_Plus_Range1_Genie_1_C12_2.261000.root";
-        file_name2 = "/genie/app/users/nsteinbe/e4nu/CLAS/DATA/Second_try/Excl_Plus_Range1_Data__C12_2.261000.root";
+        file_name1 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis17/fixed_Q2_2/Exclusive/Exclusive_Range1_Genie_2_C12_2.261000.root";
+        file_name2 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis17/fixed_Q2_2/Exclusive/Exclusive_Range1_Data__C12_2.261000.root";
     }
     else if (range == 2) {
-        file_name1 = "/genie/app/users/nsteinbe/e4nu/CLAS/GENIE/Second_try/Excl_Plus_Range2_Genie_1_C12_2.261000.root";
-        file_name2 = "/genie/app/users/nsteinbe/e4nu/CLAS/DATA/Second_try/Excl_Plus_Range2_Data__C12_2.261000.root";
+        file_name1 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis17/fixed_Q2_2/Exclusive/Exclusive_Range2_Genie_2_C12_2.261000.root";
+        file_name2 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis17/fixed_Q2_2/Exclusive/Exclusive_Range2_Data__C12_2.261000.root";
     }
     else {
-        file_name1 = "/genie/app/users/nsteinbe/e4nu/CLAS/GENIE/Second_try/Excl_Plus_Range3_Genie_1_C12_2.261000.root";
-        file_name2 = "/genie/app/users/nsteinbe/e4nu/CLAS/DATA/Second_try/Excl_Plus_Range3_Data__C12_2.261000.root";
+        file_name1 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis17/fixed_Q2_2/Exclusive/Exclusive_Range3_Genie_2_C12_2.261000.root";
+        file_name2 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis17/fixed_Q2_2/Exclusive/Exclusive_Range3_Data__C12_2.261000.root";
     }
 
 
@@ -134,6 +134,8 @@ void h1_prot_mom( int range){
     TCanvas* c;
     c = new TCanvas(TString::Format("c"), TString::Format("c"), 800, 600);
 
+    cout << "There are " << h1_prot_momentum_mc[0]->Integral() << " many events in the mc." << endl;
+    cout << "There are " << h1_prot_momentum_data[0]->Integral() << " many events in the data." << endl;
     // format the histograms
     h1_prot_momentum_mc[0]->Sumw2();
     h1_prot_momentum_mc[0]->Rebin( 25);
@@ -170,10 +172,16 @@ void h1_prot_mom( int range){
     h1_prot_momentum_mc[0]->Draw("HIST E");
     h1_prot_momentum_data[0]->Draw("E SAME");
 
-    // draw a legend for our plot
-    TLegend *legend = new TLegend( 0.2, 0.725, 0.35, 0.825);
-    legend->AddEntry( h1_prot_momentum_mc[0], "GENIE SuSAv2");
-    legend->AddEntry( h1_prot_momentum_data[0], "CLAS data");
+        const double leg_x1 = 0.75; // x-axis lower bound for the legend
+        const double leg_x2 = 0.88; // x-axis upper bound for the legend
+        const double leg_y1 = 0.74; // y-axis lower bound for the legend
+        const double leg_y2 = 0.875; // y-axis upper bound for the legend
+
+
+    TLegend *legend = new TLegend(leg_x1,leg_y1,leg_x2,leg_y2);
+    //TLegend *legend = new TLegend( 0.2, 0.725, 0.35, 0.825);
+    legend->AddEntry( h1_prot_momentum_mc[0], "GENIE");
+    legend->AddEntry( h1_prot_momentum_data[0], "CLAS");
     legend->SetBorderSize( 0);
     legend->SetFillStyle( 0);
     legend->Draw();
@@ -186,7 +194,7 @@ void h1_prot_mom( int range){
 
     // save this histogram as a PDF file
     std::string save_file_path ("invalid");
-    save_file_path = "../output/h1_prot_mom/"+TString(info1)+TString(cuts1); 
+    save_file_path = "../output2/Analysis17/h1_prot_mom/"+TString(info1)+TString(cuts1); 
     //TFile *f = new TFile(TString(save_file_path),"RECREATE");
     //cout << "File saved at: " << save_file_path << "\n";
     //h1_prot_momentum[0]->Write();

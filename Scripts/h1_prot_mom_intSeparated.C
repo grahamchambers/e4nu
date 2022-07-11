@@ -34,12 +34,13 @@
 //#include "myFunctions.cpp"
 
 void h1_prot_mom_intSeparated( std::string file_name){
+
     // read the file name to determine if we are plotting GENIE MC or CLAS data
     auto file_type_start_pos = file_name.rfind("/"); // find the last instance of '/'
     auto file_type_end_pos = file_name.find("_", file_type_start_pos + 1);
     std::string file_type = file_name.substr( file_type_start_pos + 1, file_type_end_pos - (file_type_start_pos + 1));
 
-    if (file_type.compare("genie") != 0){ // if we do not have GENIE MC
+    if (file_type.compare("Inclusive") != 0){ // if we do not have GENIE MC
             std::cout << "/----------------------------------------------------------------------------------------\\" << std::endl;
             std::cout << "| It seems you are trying to process a file with an invalid file name. Please make sure  |" << std::endl;
             std::cout << "| you have the keyword 'genie' at the beginning of the file name since interaction and   |" << std::endl;
@@ -286,11 +287,11 @@ void h1_prot_mom_intSeparated( std::string file_name){
 
     // save this histogram as a PDF file
     std::string save_file_path ("invalid");
-    if ( cut_case.compare("noCuts") == 0) { save_file_path = "../output/h1_prot_mom_intSeparated/"+TString(file_type)+"_h1_prot_mom_intSeparated_target"+target+"_beamEnergy"+beam_energy+"_MottXSecEq1_noCuts.pdf"; }
-    else if ( cut_case.compare("incl_noElMomCut") == 0) { save_file_path = "../output/h1_prot_mom_intSeparated/"+TString(file_type)+"_h1_prot_mom_intSeparated_target"+TString(target)+"_beamEnergy"+TString(beam_energy)+"_MottXSecEq1_elSectors"+TString(elSectors)+"_deltaPhiEq"+TString(deltaPhiEl)+"_thetaEl"+TString(thetaEl_lb)+"to"+TString(thetaEl_ub)+".pdf"; }
-    else if ( cut_case.compare("incl") == 0) { save_file_path = "../output/h1_prot_mom_intSeparated/"+TString(file_type)+"_h1_prot_mom_intSeparated_target"+TString(target)+"_beamEnergy"+TString(beam_energy)+"_MottXSecEq1_elSectors"+TString(elSectors)+"_deltaPhiEq"+TString(deltaPhiEl)+"_thetaEl"+TString(thetaEl_lb)+"to"+TString(thetaEl_ub)+"_elMomLBEq"+TString(elMom_lb)+".pdf"; }
-    else if ( cut_case.compare("excl") == 0) { save_file_path = "../output/h1_prot_mom_intSeparated/"+TString(file_type)+"_h1_prot_mom_intSeparated_target"+TString(target)+"_beamEnergy"+TString(beam_energy)+"_MottXSecEq1_elSectors"+TString(elSectors)+"_deltaPhiEq"+TString(deltaPhiEl)+"_thetaEl"+TString(thetaEl_lb)+"to"+TString(thetaEl_ub)+"_elMomLBEq"+TString(elMom_lb)+"_protSectors"+TString(protSectors)+"_deltaPhiProtEq"+TString(deltaPhiProt)+"_thetaProt"+TString(thetaProt_lb)+"to"+TString(thetaProt_ub)+".pdf"; }
-    else if ( cut_case.compare("excl_withProtMomCut") == 0) { save_file_path = "../output/h1_prot_mom_intSeparated/"+TString(file_type)+"_h1_prot_mom_intSeparated_target"+TString(target)+"_beamEnergy"+TString(beam_energy)+"_MottXSecEq1_elSectors"+TString(elSectors)+"_deltaPhiEq"+TString(deltaPhiEl)+"_thetaEl"+TString(thetaEl_lb)+"to"+TString(thetaEl_ub)+"_elMomLBEq"+TString(elMom_lb)+"_protSectors"+TString(protSectors)+"_deltaPhiProtEq"+TString(deltaPhiProt)+"_thetaProt"+TString(thetaProt_lb)+"to"+TString(thetaProt_ub)+"_protMomLBEq"+TString(protMom_lb)+".pdf"; }
+    if ( cut_case.compare("noCuts") == 0) { save_file_path = "../output2/h1_prot_mom_intSeparated/"+TString(file_type)+"_h1_prot_mom_intSeparated_target"+target+"_beamEnergy"+beam_energy+"_MottXSecEq1_noCuts.pdf"; }
+    else if ( cut_case.compare("incl_noElMomCut") == 0) { save_file_path = "../output2/h1_prot_mom_intSeparated/"+TString(file_type)+"_h1_prot_mom_intSeparated_target"+TString(target)+"_beamEnergy"+TString(beam_energy)+"_MottXSecEq1_elSectors"+TString(elSectors)+"_deltaPhiEq"+TString(deltaPhiEl)+"_thetaEl"+TString(thetaEl_lb)+"to"+TString(thetaEl_ub)+".pdf"; }
+    else if ( cut_case.compare("incl") == 0) { save_file_path = "../output2/h1_prot_mom_intSeparated/"+TString(file_type)+"_h1_prot_mom_intSeparated_target"+TString(target)+"_beamEnergy"+TString(beam_energy)+"_MottXSecEq1_elSectors"+TString(elSectors)+"_deltaPhiEq"+TString(deltaPhiEl)+"_thetaEl"+TString(thetaEl_lb)+"to"+TString(thetaEl_ub)+"_elMomLBEq"+TString(elMom_lb)+".pdf"; }
+    else if ( cut_case.compare("excl") == 0) { save_file_path = "../output2/h1_prot_mom_intSeparated/"+TString(file_type)+"_h1_prot_mom_intSeparated_target"+TString(target)+"_beamEnergy"+TString(beam_energy)+"_MottXSecEq1_elSectors"+TString(elSectors)+"_deltaPhiEq"+TString(deltaPhiEl)+"_thetaEl"+TString(thetaEl_lb)+"to"+TString(thetaEl_ub)+"_elMomLBEq"+TString(elMom_lb)+"_protSectors"+TString(protSectors)+"_deltaPhiProtEq"+TString(deltaPhiProt)+"_thetaProt"+TString(thetaProt_lb)+"to"+TString(thetaProt_ub)+".pdf"; }
+    else if ( cut_case.compare("excl_withProtMomCut") == 0) { save_file_path = "../output2/h1_prot_mom_intSeparated/"+TString(file_type)+"_h1_prot_mom_intSeparated_target"+TString(target)+"_beamEnergy"+TString(beam_energy)+"_MottXSecEq1_elSectors"+TString(elSectors)+"_deltaPhiEq"+TString(deltaPhiEl)+"_thetaEl"+TString(thetaEl_lb)+"to"+TString(thetaEl_ub)+"_elMomLBEq"+TString(elMom_lb)+"_protSectors"+TString(protSectors)+"_deltaPhiProtEq"+TString(deltaPhiProt)+"_thetaProt"+TString(thetaProt_lb)+"to"+TString(thetaProt_ub)+"_protMomLBEq"+TString(protMom_lb)+".pdf"; }
     c->SaveAs( TString::Format("%s", save_file_path.c_str()));
 
     // smithja: this section of code integrates the distributions and prints

@@ -346,8 +346,8 @@ public :
 #ifdef GENIE_ANALYSIS_C
 
 genie_analysis::genie_analysis( std::string a_target, std::string a_beam_en, int number_rotations, int choice, int a_elSectors, int a_deltaPhiEl, double a_thetaEl_lb, double a_thetaEl_ub, double a_elMom_lb, int a_protSectors, int a_deltaPhiProt, double a_thetaProt_lb, double a_thetaProt_ub, double a_protMom_lb, double a_protMom_ub, TTree *tree) : fChain(0)
+//genie_analysis::genie_analysis( std::string a_target, std::string a_beam_en, int number_rotations, int choice, int a_elSectors, int a_deltaPhiEl, double a_thetaEl_lb, double a_thetaEl_ub, double a_elMom_lb, int a_protSectors, int a_deltaPhiProt, double a_thetaProt_lb, double a_thetaProt_ub, double a_protMom_lb, double a_protMom_ub, double a_Em_ub, TTree *tree) : fChain(0)
 {
-
     std::cout << "Target = " << a_target << "\n" <<std::endl;
     std::cout << "Beam Energy = " << a_beam_en << "\n" <<std::endl;
     std::cout << "Number of Rotations = " << number_rotations << "\n" <<std::endl;
@@ -435,7 +435,7 @@ genie_analysis::genie_analysis( std::string a_target, std::string a_beam_en, int
         fApplyElMomCut = true; 
         t_AnyCuts->SetVal(true);
     }
-    
+
         // Proton theta lower and upper bounds
     if((a_thetaProt_lb + a_thetaProt_ub) < 180 && a_thetaProt_lb < a_thetaProt_ub) {
         t_thetaProt_lb->SetVal(a_thetaProt_lb); t_thetaProt_ub->SetVal(a_thetaProt_ub); 
@@ -490,7 +490,10 @@ genie_analysis::genie_analysis( std::string a_target, std::string a_beam_en, int
 		//chain->Add("/pnfs/genie/scratch/users/nsteinbe/eGENIE_grid/SF_2261_all.root");
 
       		// Non radiative SuSav2
+	
+		//chain->Add(Form("/genie/app/users/gchamber/e4nu_2022/e4nu/Simulations/output/C12_2261/C12_2261_EMQE_G18_02a_00_000_noFSI_bigstat.root")); 
 		chain->Add(Form("/pnfs/genie/persistent/users/apapadop/e4v_SuSav2/Exclusive/electrons/%s_%sGeV/apapadop_SuSav2_%s_%sGeV_master.root", ftarget.c_str(),fbeam_en.c_str(),ftarget.c_str(),fbeam_en.c_str()));
+		//chain->Add(Form("/pnfs/genie/persistent/users/gchamber/Grid/helium4_2261.gst.root", ftarget.c_str(),fbeam_en.c_str(),ftarget.c_str(),fbeam_en.c_str()));
 		
       		// Ext Radiation SuSav2
 //		  chain->Add(Form("/pnfs/genie/persistent/users/apapadop/e4v_SuSav2/Exclusive/electrons/%s_%sGeV/apapadop_Rad_SuSav2_%s_%sGeV.root", ftarget.c_str(),fbeam_en.c_str(),ftarget.c_str(),fbeam_en.c_str()));  
@@ -508,6 +511,8 @@ genie_analysis::genie_analysis( std::string a_target, std::string a_beam_en, int
 	
 		chain->Add(Form("/pnfs/genie/persistent/users/apapadop/e4v_G2018/Exclusive/electrons/%s_%sGeV/apapadop_G2018_%s_%sGeV_master*.root", ftarget.c_str(),fbeam_en.c_str(),ftarget.c_str(),fbeam_en.c_str()));
 
+	//	chain->Add(Form("/pnfs/genie/persistent/users/gchamber/Grid/output/C12_2261/C12_2261_EMQE_G18_02a_00_000_redo3_FSI.root")); 
+		//chain->Add(Form("/genie/app/users/gchamber/e4nu_2022/e4nu/Simulations/output/C12_2261/C12_2261_EMQE_G18_02a_00_000_noFSI_bigstat.root")); 
 		//chain->Add("/genie/app/users/gchamber/Generator/simulations/C12/1_161/G18_10a_02_11a/FSI/genie_gst_C12_1161_el_G18_10a_02_11a_FSI_50k.root");
       		// Ext Radiation G2018
 

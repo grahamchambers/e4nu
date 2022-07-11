@@ -145,7 +145,7 @@ void h1_prot_theta_intSeparated( std::string file_name){
 
     
     std::string save_file_path ("invalid");
-    save_file_path = "../output/h1_prot_theta_intSeparated/"+TString(info)+TString(cuts)+"MottXSecEq1.pdf"; 
+    save_file_path = "../output2/h1_prot_theta_intSeparated/"+TString(info)+TString(cuts)+"MottXSecEq1.pdf"; 
     c->SaveAs( TString::Format("%s", save_file_path.c_str()));
 
     // smithja: this section of code integrates the distributions and prints

@@ -87,7 +87,7 @@ void genie_analysis::Loop() {
         bool UsePhiThetaBand = false;
 
         double PtMax = 0.2; // gchamber: max pt cut (1e1p spectrum)
-        
+	double Em_ub = 999999999999999999999999;        
 
 	// ---------------------------------------------------------------------------------------------------------------
 
@@ -118,9 +118,11 @@ void genie_analysis::Loop() {
 	if (fChain == 0) return;
 
 	Long64_t nentries = fChain->GetEntriesFast();
-//	nentries = 1000;
-//	nentries = 10000000; // smithja: max for C-12 simulation to not crash
-//	nentries = 200000000;
+	//nentries = 1000;
+	nentries = 1000000;
+	//nentries = 5000000;
+	//nentries = 10000000; // smithja: max for C-12 simulation to not crash
+	//nentries = 200000000;
 
 	// smithja: Tells the user if nentries is maually set and if the
 	//          manually set value is valid given the amount of 
@@ -273,7 +275,7 @@ void genie_analysis::Loop() {
 	// Number of Entries
 	t_nentries->SetVal(nentries);
         std::cout << "" << "\n";
-	FileName = ("/genie/app/users/nsteinbe/e4nu/CLAS/GENIE/Noemi_files/FullSample_Range3_"+std::string(t_Run->GetTitle()) + "_" +std::string(t_target->GetTitle()) + "_" + std::to_string(t_beam_en->GetVal()) + ".root").c_str();
+	FileName = ("/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis22/Exclusive/Exclusive_Range1_"+std::string(t_Run->GetTitle()) + "_" +std::string(t_target->GetTitle()) + "_" + std::to_string(t_beam_en->GetVal()) + ".root").c_str();
 	file_out = new TFile( FileName, "Recreate");
 
 	// Write out TList of run options see (https://root.cern/doc/master/classTCollection.html#a3992401270fb2383d6d6003b60d81146)
@@ -381,7 +383,7 @@ void genie_analysis::Loop() {
 			h1_InteractionBreakDown_NoQ4Weight_InSector_isFSI_prot_theta[WhichInt][WhichSector][0] = new TH1F("h1_InteractionEq"+TString(std::to_string(WhichInt))+"_NoQ4Weight_InSector"+TString(std::to_string(WhichSector))+"_FSI_prot_theta", "", 720, 0, 180);
             h1_InteractionBreakDown_NoQ4Weight_InSector_isFSI_prot_theta[WhichInt][WhichSector][1] = new TH1F("h1_InteractionEq"+TString(std::to_string(WhichInt))+"_NoQ4Weight_InSector"+TString(std::to_string(WhichSector))+"_noFSI_prot_theta", "", 720, 0, 180);
             
-            h1_InteractionBreakDown_InSector_Em[WhichInt][WhichSector] = new TH1F("h1_Int_"+TString(std::to_string(WhichInt))+"_Sect_"+TString(std::to_string(WhichSector))+"_Em", "", 100,0,200);//missing energy distribution
+            h1_InteractionBreakDown_InSector_Em[WhichInt][WhichSector] = new TH1F("h1_Int_"+TString(std::to_string(WhichInt))+"_Sect_"+TString(std::to_string(WhichSector))+"_Em", "", 500,0,1000);//missing energy distribution
 		}
 
 
@@ -401,7 +403,6 @@ void genie_analysis::Loop() {
 	// -------------------------------------------------------------------------------------------------------
 
 	// Binning for energy reconstruction histograms && feeddown
-
 	int n_bins;
 	double *x_values;
 	double *x_qe;
@@ -454,6 +455,9 @@ void genie_analysis::Loop() {
 	TH2F *h2_prot_mom_el_phi = new TH2F("h2_prot_mom_el_phi", "", 360, 0, 360, 6000, 0, 6);
 	TH2F *h2_prot_mom_el_theta = new TH2F("h2_prot_mom_el_theta", "", 720, 0, 180, 6000, 0, 6);
 	TH2F *h2_prot_mom_el_mom = new TH2F("h2_prot_mom_el_mom", "", 6000, 0, 6, 6000, 0, 6);
+	TH2F *h2_el_mom_theta_nocuts = new TH2F("h2_el_mom_theta_nocuts", "", 6000, 0, 6, 1800, 0, 180);
+	TH2F *h2_el_mom_theta_nocuts_nosmear = new TH2F("h2_el_mom_theta_nocuts_nosmear", "", 6000, 0, 6, 1800, 0, 180);
+	TH2F *h2_el_theta_phi_nocuts_nosmear = new TH2F("h2_el_theta_phi_nocuts_nosmear", "", 7200, -360, 360, 7200, -360, 360);
 	TH2F *h2_prot_mom_phi = new TH2F("h2_prot_mom_phi", "", 360, 0, 360, 6000, 0, 6);
 	TH2F *h2_prot_mom_theta = new TH2F("h2_prot_mom_theta", "", 720, 0, 180, 6000, 0, 6);
 	// smithja: end plot section
@@ -566,8 +570,21 @@ void genie_analysis::Loop() {
 	/** Beginning of Event Loop **/
 
 	int TotalCounter = 0;
+	int PassCounter06 = 0;
+	int PassCounter05 = 0;
+	int PassCounter04 = 0;
+	int PassCounter04a = 0;
+	int PassCounter03 = 0;
+	int PassCounter02 = 0;
+	int PassCounter01 = 0;
+	int PassCounter0 = 0;
+	int PassCounter1 = 0;
+	int PassCounter2 = 0;
+	int PassCounter3 = 0;
+	int PassCounter4 = 0;
 
 	for( Long64_t jentry = 0; jentry < nentries; jentry++){
+		
 		Long64_t ientry = LoadTree(jentry);
 		if (ientry < 0) break;
 		//Read Entry
@@ -619,7 +636,7 @@ void genie_analysis::Loop() {
 		//if (resc_val > 1) continue;
 		
 		// ---------------------------------------------------------------------------------------------------------------
-
+		PassCounter06 ++;
 		if(jentry == 0){ //first entry to initialize TorusCurrent, Fiducials and Subtraction classes
 
 			//The TorusField has to be set before the Fiducialcut parameters are initialized
@@ -669,8 +686,10 @@ void genie_analysis::Loop() {
 		double el_momentum = V3_el.Mag();
 		double el_theta = V3_el.Theta();
 
+		h2_el_mom_theta_nocuts_nosmear->Fill(el_momentum, el_theta*180./TMath::Pi());
+		h2_el_theta_phi_nocuts_nosmear->Fill(el_theta*180./TMath::Pi(),V3_el.Phi()*180./TMath::Pi());
 		// ----------------------------------------------------------------------------------------------------------------------	
-
+		PassCounter05 ++;
 		if (fchoice > 0) { //smearing, fiducials and acceptance ratio for GENIE simulation data
 
 			//Smearing of Electron Vector from Simulation
@@ -694,6 +713,7 @@ void genie_analysis::Loop() {
 			e_acc_ratio = acceptance_c(el_momentum, cos(el_theta), phi_ElectronOut, 11, file_acceptance, ApplyAccWeights);
 			if ( fabs(e_acc_ratio) != e_acc_ratio ) { continue; }
 
+			h2_el_mom_theta_nocuts->Fill(el_momentum, el_theta*180./TMath::Pi(), e_acc_ratio);
 			// --------------------------------------------------------------------------------------------------
 
 			// GENIE Systematic Uncertainties
@@ -712,22 +732,24 @@ void genie_analysis::Loop() {
 		}
 
 		// ----------------------------------------------------------------------------------------------------------------------
+		
 
+		PassCounter04 ++;
 		double theta_min = myElectronFit->Eval(el_momentum); // in deg
 		if (el_theta*180./TMath::Pi() < theta_min) { continue; }
-
+		PassCounter04a ++;
 		if (fApplyThetaSliceEl) {  // hard coded range for now
 			if ( el_theta*180./TMath::Pi() < t_thetaEl_lb->GetVal()) { continue; }
 			if ( el_theta*180./TMath::Pi() > t_thetaEl_ub->GetVal()) { continue; }
 		}
 		// ----------------------------------------------------------------------------------------------------------------------
-
+	
 		// Explicit cuts on electron momentum
-
+		PassCounter03 ++;
 		if (fbeam_en=="1161" && (el_momentum < 0.4 || (el_momentum < t_elMom_lb->GetVal() && fApplyElMomCut == true))) { continue; }
 		if (fbeam_en=="2261" && (el_momentum < 0.55 || (el_momentum < t_elMom_lb->GetVal() && fApplyElMomCut == true))) { continue; }
 		if (fbeam_en=="4461" && (el_momentum < 1.1 || (el_momentum < t_elMom_lb->GetVal() && fApplyElMomCut == true))) { continue; }
-		
+		PassCounter02 ++;	
 		//Definition as for data. It is also correct for GENIE simulation data since V3_el is rotated above by 180 degree in phi
 		double el_phi_mod = V3_el.Phi()*TMath::RadToDeg()  + 30; //Add 30 degree for plotting and photon phi cut
 		if(el_phi_mod<0)  el_phi_mod  = el_phi_mod+360; //Add 360 so that electron phi is between 0 and 360 degree
@@ -735,9 +757,11 @@ void genie_analysis::Loop() {
 		if (fApplyPhiOpeningAngleEl) { if ( !(TMath::Abs(el_phi_mod - 30)  <= PhiOpeningAngleEl || TMath::Abs(el_phi_mod - 90)  <= PhiOpeningAngleEl || TMath::Abs(el_phi_mod - 150)  <= PhiOpeningAngleEl || TMath::Abs(el_phi_mod - 210)  <= PhiOpeningAngleEl || TMath::Abs(el_phi_mod - 270)  <= PhiOpeningAngleEl || TMath::Abs(el_phi_mod - 330)  <= PhiOpeningAngleEl ) ) { continue; } }
 
 		int ElectronSector = el_phi_mod / 60.;
-		
+		PassCounter01 ++;	
 		if (fApplyPhiSliceEl_Sectors16) { if((ElectronSector != 5 && ElectronSector != 0)) continue; }
 		if (fApplyPhiSliceEl_Sectors126) { if(ElectronSector != 5 && ElectronSector != 1 && ElectronSector != 0) continue; }
+		//if (fApplyPhiSliceEl_Sectors126) { if(ElectronSector != 0) continue; }
+		//if (fApplyPhiSliceEl_Sectors126) { if(ElectronSector != 5) continue; }
 
 		//Calculated Mott Cross Section and Weights for Inclusive Histograms
 		//Wght and e_acc_ratio is 1 for CLAS data
@@ -768,6 +792,7 @@ void genie_analysis::Loop() {
 
 		double WeightIncl = wght*e_acc_ratio / Mott_cross_sec;
 
+		PassCounter0 ++;
 		// Securing ourselves against infinities
 		if ( fabs(WeightIncl) != WeightIncl ) { continue; }
 
@@ -793,7 +818,7 @@ void genie_analysis::Loop() {
 
 		//converting theta to degrees
 		el_theta = el_theta*TMath::RadToDeg();
-
+		PassCounter1 ++;
 		//Cuts on Q2 and W, only keep events with Q2 > Q2cut and W < Wcut
 		if ( reco_Q2 < Q2cut || W_var > Wcut) continue;
 
@@ -834,7 +859,7 @@ void genie_analysis::Loop() {
 		}
 
 		// ---------------------------------------------------------------------------------------------------------------------
-
+		PassCounter2 ++;
 		// Fully inclusive plots & counters shown first below
 
 		h1_Electron_AccMapWeights->Fill(e_acc_ratio);
@@ -1367,7 +1392,7 @@ void genie_analysis::Loop() {
 			TVector3 V3_2prot_corr[2];
 			V3_2prot_corr[0] = V3_prot_corr1;
 			V3_2prot_corr[1] = V3_prot_corr2;
-
+		
 			//---------------------------------- 2p 0pi->  1p0pi   ----------------------------------------------
 
 			double E_tot_2p[2]={0};
@@ -1401,7 +1426,8 @@ void genie_analysis::Loop() {
 					double ProtonMag = V3_2prot_corr[f].Mag();
 					double ProtonTK = sqrt(ProtonMag*ProtonMag + m_prot*m_prot) - m_prot;
 					double Em = (nu - ProtonTK)*1000.;
-                                                       
+                                        if (Em > Em_ub)  {continue;}
+
 					// gchamber: below are cuts on proton angles. These cuts are in each topology block	
 					if (fApplyThetaSliceProt) {  // hard coded range for now
 						if ( ProtonTheta_Deg < t_thetaProt_lb->GetVal()) { continue; }
@@ -1592,6 +1618,8 @@ void genie_analysis::Loop() {
 					double ProtonTK = sqrt(ProtonMag*ProtonMag + m_prot*m_prot) - m_prot;
 					double Em = (nu - ProtonTK)*1000.;
 					
+                                        if (Em > Em_ub)  {continue;}
+					
 					if (fApplyThetaSliceProt) {  // hard coded range for now
 						if ( ProtonTheta_Deg < t_thetaProt_lb->GetVal()) { continue; }
 						if ( ProtonTheta_Deg > t_thetaProt_ub->GetVal()) { continue; }
@@ -1632,6 +1660,7 @@ void genie_analysis::Loop() {
                                         if (prot_phi_plot < 0.)	{ prot_phi_plot += 360.; } // smithja: this statement puts the proton phi in the correct range for plotting; a similar statement making	sure ProtonPhi_Deg is below 360
                                                                                            //          degrees is included towards the top of this code, so the only modification to prot_phi_plot needed is what's shown in this statement
 					h2_prot_theta_phi->Fill( prot_phi_plot, ProtonTheta_Deg, P_2p1pito2p0pi[z]*histoweight);	
+					PassCounter3 ++;
 
                                         // smithja: These TH2s are used to investigate correlations between proton momtentum and other variables.
                                         h2_prot_mom_el_phi->Fill( el_phi_mod, ProtonMag, P_2p1pito2p0pi[z]*histoweight);
@@ -1723,6 +1752,7 @@ void genie_analysis::Loop() {
                                         if (prot_phi_plot < 0.)	{ prot_phi_plot += 360.; } // smithja: this statement puts the proton phi in the correct range for plotting; a similar statement making	sure ProtonPhi_Deg is below 360
                                                                                            //          degrees is included towards the top of this code, so the only modification to prot_phi_plot needed is what's shown in this statement
 					h2_prot_theta_phi->Fill( prot_phi_plot, ProtonTheta_Deg, P_2p1pito1p1pi[z]*histoweight);
+					PassCounter3 ++;
 					
                                         // smithja: These TH2s are used to investigate correlations between proton momtentum and other variables.
 					h2_prot_mom_el_phi->Fill( el_phi_mod, ProtonMag, P_2p1pito1p1pi[z]*histoweight);
@@ -1807,6 +1837,7 @@ void genie_analysis::Loop() {
                                         if (prot_phi_plot < 0.)	{ prot_phi_plot += 360.; } // smithja: this statement puts the proton phi in the correct range for plotting; a similar statement making	sure ProtonPhi_Deg is below 360
                                                                                            //          degrees is included towards the top of this code, so the only modification to prot_phi_plot needed is what's shown in this statement
 					h2_prot_theta_phi->Fill( prot_phi_plot, ProtonTheta_Deg, -P_2p1pito1p0pi[z]*histoweight);	
+					PassCounter3 ++;
 					
                                         // smithja: These TH2s are used to investigate correlations between proton momtentum and other variables.
                                         h2_prot_mom_el_phi->Fill( el_phi_mod, ProtonMag, -P_2p1pito1p0pi[z]*histoweight);
@@ -1951,6 +1982,8 @@ void genie_analysis::Loop() {
 					double ProtonTK = sqrt(ProtonMag*ProtonMag + m_prot*m_prot) - m_prot;
 					double Em = (nu - ProtonTK)*1000.;
 										
+                                        if (Em > Em_ub)  {continue;}
+
 					if (fApplyThetaSliceProt) {  // hard coded range for now
 						if ( ProtonTheta_Deg < t_thetaProt_lb->GetVal()) { continue; }
 						if ( ProtonTheta_Deg > t_thetaProt_ub->GetVal()) { continue; }
@@ -1990,6 +2023,7 @@ void genie_analysis::Loop() {
                                         if (prot_phi_plot < 0.)	{ prot_phi_plot += 360.; } // smithja: this statement puts the proton phi in the correct range for plotting; a similar statement making	sure ProtonPhi_Deg is below 360
                                                                                            //          degrees is included towards the top of this code, so the only modification to prot_phi_plot needed is what's shown in this statement
 					h2_prot_theta_phi->Fill( prot_phi_plot, ProtonTheta_Deg, Ptot_2p[z]*histoweight);						
+					PassCounter3 ++;
 					
                                         // smithja: These TH2s are used to investigate correlations between proton momtentum and other variables.
                                         h2_prot_mom_el_phi->Fill( el_phi_mod, ProtonMag, Ptot_2p[z]*histoweight);
@@ -2163,6 +2197,7 @@ void genie_analysis::Loop() {
 						double ProtonTK = sqrt(ProtonMag*ProtonMag + m_prot*m_prot) - m_prot;
 						double Em = (nu - ProtonTK)*1000.;
 					
+                                        	if (Em > Em_ub)  {continue;}
 						
 						if (fApplyThetaSliceProt) {  // hard coded range for now
 							if ( ProtonTheta_Deg < t_thetaProt_lb->GetVal()) { continue; }
@@ -2203,6 +2238,7 @@ void genie_analysis::Loop() {
         	                                if (prot_phi_plot < 0.)	{ prot_phi_plot += 360.; } // smithja: this statement puts the proton phi in the correct range for plotting; a similar statement making	sure ProtonPhi_Deg is below 360
                                                                                            //          degrees is included towards the top of this code, so the only modification to prot_phi_plot needed is what's shown in this statement
 						h2_prot_theta_phi->Fill( prot_phi_plot, ProtonTheta_Deg, P_3pto2p[count][j]*histoweight);							
+						PassCounter3 ++;
 					
 	                                        // smithja: These TH2s are used to investigate correlations between proton momtentum and other variables.
         	                                h2_prot_mom_el_phi->Fill( el_phi_mod, ProtonMag, P_3pto2p[count][j]*histoweight);
@@ -2291,7 +2327,8 @@ void genie_analysis::Loop() {
 					double ProtonTK = sqrt(ProtonMag*ProtonMag + m_prot*m_prot) - m_prot;
 					double Em = (nu - ProtonTK)*1000.;
 					
-					
+                                        if (Em > Em_ub)  {continue;}
+
 					if (fApplyThetaSliceProt) {  // hard coded range for now
 						if ( ProtonTheta_Deg < t_thetaProt_lb->GetVal()) { continue; }
 						if ( ProtonTheta_Deg > t_thetaProt_ub->GetVal()) { continue; }
@@ -2331,6 +2368,7 @@ void genie_analysis::Loop() {
                                         if (prot_phi_plot < 0.)	{ prot_phi_plot += 360.; } // smithja: this statement puts the proton phi in the correct range for plotting; a similar statement making	sure ProtonPhi_Deg is below 360
                                                                                            //          degrees is included towards the top of this code, so the only modification to prot_phi_plot needed is what's shown in this statement
 					h2_prot_theta_phi->Fill( prot_phi_plot, ProtonTheta_Deg, -P_3pto1p[j]*histoweight);						
+					PassCounter3 ++;
 					
                                         // smithja: These TH2s are used to investigate correlations between proton momtentum and other variables.
                                         h2_prot_mom_el_phi->Fill( el_phi_mod, ProtonMag, -P_3pto1p[j]*histoweight);
@@ -2469,6 +2507,7 @@ void genie_analysis::Loop() {
 					double ProtonTK = sqrt(ProtonMag*ProtonMag + m_prot*m_prot) - m_prot;
 					double Em = (nu - ProtonTK)*1000.;
 					
+                                        if (Em > Em_ub)  {continue;}
 					
 					if (fApplyThetaSliceProt) {  // hard coded range for now
 						if ( ProtonTheta_Deg < t_thetaProt_lb->GetVal()) { continue; }
@@ -2509,6 +2548,7 @@ void genie_analysis::Loop() {
                                         if (prot_phi_plot < 0.)	{ prot_phi_plot += 360.; } // smithja: this statement puts the proton phi in the correct range for plotting; a similar statement making	sure ProtonPhi_Deg is below 360
                                                                                            //          degrees is included towards the top of this code, so the only modification to prot_phi_plot needed is what's shown in this statement
 					h2_prot_theta_phi->Fill( prot_phi_plot, ProtonTheta_Deg, P_tot_3p[j]*histoweight);						
+					PassCounter3 ++;
 					
                                         // smithja: These TH2s are used to investigate correlations between proton momtentum and other variables.
                                         h2_prot_mom_el_phi->Fill( el_phi_mod, ProtonMag, P_tot_3p[j]*histoweight);
@@ -2935,6 +2975,7 @@ void genie_analysis::Loop() {
 				double ProtonTK = sqrt(ProtonMag*ProtonMag + m_prot*m_prot) - m_prot;
 				double Em = (nu - ProtonTK)*1000.;
 					
+                                if (Em > Em_ub)  {continue;}
 						
 				if (fApplyThetaSliceProt) {  // hard coded range for now
 					if ( ProtonTheta_Deg < t_thetaProt_lb->GetVal()) { continue; }
@@ -2975,6 +3016,7 @@ void genie_analysis::Loop() {
                                 if (prot_phi_plot < 0.)	{ prot_phi_plot += 360.; } // smithja: this statement puts the proton phi in the correct range for plotting; a similar statement making	sure ProtonPhi_Deg is below 360
                                                                                    //          degrees is included towards the top of this code, so the only modification to prot_phi_plot needed is what's shown in this statement
 				h2_prot_theta_phi->Fill( prot_phi_plot, ProtonTheta_Deg, histoweight);					
+				PassCounter3 ++;
 
                                 // smithja: These TH2s are used to investigate correlations between proton momtentum and other variables.
                                 h2_prot_mom_el_phi->Fill( el_phi_mod, ProtonMag, histoweight);
@@ -3120,6 +3162,7 @@ void genie_analysis::Loop() {
 					double ProtonTK = sqrt(ProtonMag*ProtonMag + m_prot*m_prot) - m_prot;
 					double Em = (nu - ProtonTK)*1000.;
 					
+                                        if (Em > Em_ub)  {continue;}
 					
 					if (fApplyThetaSliceProt) {  // hard coded range for now
 						if ( ProtonTheta_Deg < t_thetaProt_lb->GetVal()) { continue; }
@@ -3161,6 +3204,7 @@ void genie_analysis::Loop() {
                                         if (prot_phi_plot < 0.)	{ prot_phi_plot += 360.; } // smithja: this statement puts the proton phi in the correct range for plotting; a similar statement making	sure ProtonPhi_Deg is below 360
                                                                                            //          degrees is included towards the top of this code, so the only modification to prot_phi_plot needed is what's shown in this statement
 					h2_prot_theta_phi->Fill( prot_phi_plot, ProtonTheta_Deg, -(N_piphot_undet/N_piphot_det)*histoweight);						
+					PassCounter3 ++;
 					
                                         // smithja: These TH2s are used to investigate correlations between proton momtentum and other variables.
                                         h2_prot_mom_el_phi->Fill( el_phi_mod, ProtonMag, -(N_piphot_undet/N_piphot_det)*histoweight);
@@ -3305,6 +3349,8 @@ void genie_analysis::Loop() {
 					double ProtonMag = V3_prot_corr.Mag();
 					double ProtonTK = sqrt(ProtonMag*ProtonMag + m_prot*m_prot) - m_prot;
 					double Em = (nu - ProtonTK)*1000.;
+                                        
+					if (Em > Em_ub)  {continue;}
 				
 					if (fApplyThetaSliceProt) {  // hard coded range for now
 						if ( ProtonTheta_Deg < t_thetaProt_lb->GetVal()) { continue; }
@@ -3345,6 +3391,7 @@ void genie_analysis::Loop() {
                                         if (prot_phi_plot < 0.)	{ prot_phi_plot += 360.; } // smithja: this statement puts the proton phi in the correct range for plotting; a similar statement making	sure ProtonPhi_Deg is below 360
                                                                                            //          degrees is included towards the top of this code, so the only modification to prot_phi_plot needed is what's shown in this statement
 					h2_prot_theta_phi->Fill( prot_phi_plot, ProtonTheta_Deg, P_1p1pi[z]*histoweight);						
+					PassCounter3 ++;
 					
                                         // smithja: These TH2s are used to investigate correlations between proton momtentum and other variables.
                                         h2_prot_mom_el_phi->Fill( el_phi_mod, ProtonMag, P_1p1pi[z]*histoweight);
@@ -3428,6 +3475,7 @@ void genie_analysis::Loop() {
 				double ProtonTK = sqrt(ProtonMag*ProtonMag + m_prot*m_prot) - m_prot;
 				double Em = (nu - ProtonTK)*1000.;
 					
+                                if (Em > Em_ub)  {continue;}
 				
 				if (fApplyThetaSliceProt) {  // hard coded range for now
 					if ( ProtonTheta_Deg < t_thetaProt_lb->GetVal()) { continue; }
@@ -3469,6 +3517,7 @@ void genie_analysis::Loop() {
                                 if (prot_phi_plot < 0.)	{ prot_phi_plot += 360.; } // smithja: this statement puts the proton phi in the correct range for plotting; a similar statement making	sure ProtonPhi_Deg is below 360
                                                                                    //          degrees is included towards the top of this code, so the only modification to prot_phi_plot needed is what's shown in this statement
 				h2_prot_theta_phi->Fill( prot_phi_plot, ProtonTheta_Deg, -P_1p0pi*histoweight);					
+				PassCounter3 ++;
 				
                                 // smithja: These TH2s are used to investigate correlations between proton momtentum and other variables.
                                 h2_prot_mom_el_phi->Fill( el_phi_mod, ProtonMag, -P_1p0pi*histoweight);
@@ -3609,6 +3658,7 @@ void genie_analysis::Loop() {
 				double ProtonTK = sqrt(ProtonMag*ProtonMag + m_prot*m_prot) - m_prot;
 				double Em = (nu - ProtonTK)*1000.;
 					
+                                if (Em > Em_ub)  {continue;}
 				
 				if (fApplyThetaSliceProt) {  // hard coded range for now
 					if ( ProtonTheta_Deg < t_thetaProt_lb->GetVal()) { continue; }
@@ -3648,6 +3698,7 @@ void genie_analysis::Loop() {
                                 if (prot_phi_plot < 0.)	{ prot_phi_plot += 360.; } // smithja: this statement puts the proton phi in the correct range for plotting; a similar statement making	sure ProtonPhi_Deg is below 360
                                                                                    //          degrees is included towards the top of this code, so the only modification to prot_phi_plot needed is what's shown in this statement
 				h2_prot_theta_phi->Fill( prot_phi_plot, ProtonTheta_Deg, P_1p3pi*histoweight);					
+				PassCounter3 ++;
 				
                                 // smithja: These TH2s are used to investigate correlations between proton momtentum and other variables.
                                 h2_prot_mom_el_phi->Fill( el_phi_mod, ProtonMag, P_1p3pi*histoweight);
@@ -3731,6 +3782,17 @@ void genie_analysis::Loop() {
 	std::cout << std::endl << "1e1p0pi Signal # Events = " << SignalEvents << std::endl;
 	std::cout << std::endl << "Passing Rate = " << int(double(SignalEvents) / double(TotalCounter)*100.) << " \%"<< std::endl << std::endl;
 
+	std::cout << std::endl << "PassCounter06 = " << PassCounter06 << std::endl;
+	std::cout << std::endl << "PassCounter05 = " << PassCounter05 << std::endl;
+	std::cout << std::endl << "PassCounter04 = " << PassCounter04 << std::endl;
+	std::cout << std::endl << "PassCounter04a = " << PassCounter04a << std::endl;
+	std::cout << std::endl << "PassCounter03 = " << PassCounter03 << std::endl;
+	std::cout << std::endl << "PassCounter02 = " << PassCounter02 << std::endl;
+	std::cout << std::endl << "PassCounter01 = " << PassCounter01 << std::endl;
+	std::cout << std::endl << "PassCounter0 = " << PassCounter0 << std::endl;
+	std::cout << std::endl << "PassCounter1 = " << PassCounter1 << std::endl;
+	std::cout << std::endl << "PassCounter2 = " << PassCounter2 << std::endl;
+	std::cout << std::endl << "PassCounter3 = " << PassCounter3 << std::endl;
 	if (fchoice > 0) {
 
 		std::cout << std::endl << "QE Fractional Contribution = " << int(double(QESignalEvents) / double(SignalEvents)*100.) << " \%" << std::endl;

@@ -1,4 +1,4 @@
-// This file takes in GENIE Monte Carlo (MC) data for the Fe-56
+// This file takes in GENIE Monte Carlo (MC) data for the C-12
 // targets with a 2.261 GeV beam energy and calculates the proton 
 // transparency (ratio of exclusive cut case events to inclusive cut case 
 // events) as a function of proton momentum. Note this script take 
@@ -6,6 +6,7 @@
 //
 // Author: Jacob Smith (smithja)
 // Date of Creation: 11/08/2021 
+
 #include <TFile.h>
 #include <TH1D.h>
 #include <TF1.h>
@@ -23,6 +24,17 @@
 #include <vector>
 #include <stdio.h>
 
+double weighted_average(TH1F* h1) {
+	double num_sum = 0.0;
+	double den_sum = 0.0;
+	for (int i = 0; i < h1->GetNbinsX(); i++) {
+		if (h1->GetBinContent(i) == 0) continue;
+		num_sum += h1->GetBinCenter(i)*h1->GetBinContent(i);
+		den_sum += h1->GetBinContent(i);
+	}
+
+	return num_sum/den_sum;
+}
 
 void prot_trans_vs_prot_mom_target56Fe_beamEnergy2261_exclusivePlus(){
 	// You will need to change these variables if you change the amount of data you run
@@ -52,6 +64,13 @@ void prot_trans_vs_prot_mom_target56Fe_beamEnergy2261_exclusivePlus(){
 	const double leg_y2 = 0.875; // y-axis upper bound for the legend
         gStyle->SetErrorX(0);
 
+	// These correction factors are obtained from looking at the number of struck protons and neutrons in each sample
+	// In SuSAv2, the number of protons and neutrons was incorrectly set to be equal
+	double corrRange[3] = {.72663266,.67751860,.65815318};
+	//double corrRange[3] = {.947055,.893616,.832481};
+	//double corrRange[3] = {.83075,.72283,.64886};
+	//double corrRange[3] = {4900./(4900. + 1800.), 1830./(1830. + 830.), 395./(395. + 205.)};
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Users don't have to read all the code below this dashed line unless they want to do a deep dive into the code, or if they want to debug, etc.
 
@@ -67,175 +86,159 @@ void prot_trans_vs_prot_mom_target56Fe_beamEnergy2261_exclusivePlus(){
         c = new TCanvas( TString::Format("c"), TString::Format("c"), 800, 600);
 
 	// these are the file paths where the GENIE MC files and CLAS data files will be
-	std::string mc_file_path ("/pnfs/genie/persistent/users/smithja/e4nu_GENIE_simulation_output_files/56Fe_2261/");
-	std::string data_file_path ("/pnfs/genie/persistent/users/smithja/e4nu_CLAS_data_output_files/56Fe_2261/");
+	std::string mc_file_path ("/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/ThirdAnalysis/");
+	std::string data_file_path ("/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/ThirdAnalysis/");
 
-	TFile *input;
-	std::string file_names[ N_FILES];
-	file_names[0] =	mc_file_path + "genie_target56Fe_beamEnergy2261_50000000Events_elSectors126_deltaPhiElEq12pt00_thetaEl20pt00to25pt00_elMomLBEq1pt90_MottXSecEq1.root";
-	file_names[1] =	mc_file_path + "genie_target56Fe_beamEnergy2261_50000000Events_elSectors126_deltaPhiElEq12pt00_thetaEl20pt00to25pt00_elMomLBEq1pt90_protSectors453_deltaPhiProtEq45pt00_thetaProt47pt00to70pt00_protMomLBEq0pt60_MottXSecEq1.root";
-	file_names[2] = mc_file_path + "genie_target56Fe_beamEnergy2261_50000000Events_elSectors126_deltaPhiElEq12pt00_thetaEl30pt00to35pt00_elMomLBEq1pt65_MottXSecEq1.root";
-        file_names[3] = mc_file_path + "genie_target56Fe_beamEnergy2261_50000000Events_elSectors126_deltaPhiElEq12pt00_thetaEl30pt00to35pt00_elMomLBEq1pt65_protSectors453_deltaPhiProtEq45pt00_thetaProt40pt00to55pt00_protMomLBEq1pt00_MottXSecEq1.root";
-        file_names[4] = mc_file_path + "genie_target56Fe_beamEnergy2261_50000000Events_elSectors126_deltaPhiElEq12pt00_thetaEl40pt00to45pt00_elMomLBEq1pt40_MottXSecEq1.root";
-        file_names[5] = mc_file_path + "genie_target56Fe_beamEnergy2261_50000000Events_elSectors126_deltaPhiElEq12pt00_thetaEl40pt00to45pt00_elMomLBEq1pt40_protSectors453_deltaPhiProtEq45pt00_thetaProt35pt00to45pt00_protMomLBEq1pt30_MottXSecEq1.root"; 
-        file_names[6] = data_file_path + "data_target56Fe_beamEnergy2261_elSectors126_deltaPhiElEq12pt00_thetaEl20pt00to25pt00_elMomLBEq1pt90.root";
-        file_names[7] = data_file_path + "data_target56Fe_beamEnergy2261_elSectors126_deltaPhiElEq12pt00_thetaEl20pt00to25pt00_elMomLBEq1pt90_protSectors453_deltaPhiProtEq45pt00_thetaProt47pt00to70pt00_protMomLBEq0pt60.root";
-        file_names[8] = data_file_path + "data_target56Fe_beamEnergy2261_elSectors126_deltaPhiElEq12pt00_thetaEl30pt00to35pt00_elMomLBEq1pt65.root";
-        file_names[9] = data_file_path + "data_target56Fe_beamEnergy2261_elSectors126_deltaPhiElEq12pt00_thetaEl30pt00to35pt00_elMomLBEq1pt65_protSectors453_deltaPhiProtEq45pt00_thetaProt40pt00to55pt00_protMomLBEq1pt00.root";
-        file_names[10] = data_file_path + "data_target56Fe_beamEnergy2261_elSectors126_deltaPhiElEq12pt00_thetaEl40pt00to45pt00_elMomLBEq1pt40.root";
-        file_names[11] = data_file_path + "data_target56Fe_beamEnergy2261_elSectors126_deltaPhiElEq12pt00_thetaEl40pt00to45pt00_elMomLBEq1pt40_protSectors453_deltaPhiProtEq45pt00_thetaProt35pt00to45pt00_protMomLBEq1pt30.root";	
+	TFile *input_mc_incl;
+	TFile *input_mc_excl;
+	TFile *input_data_incl;
+	TFile *input_data_excl;
 
-        TH1F* h1_prot_mom_sectors_interactions_mc[N_FILES/2][N_SECTORS][N_INT]; // array of TH1Fs to store all of the unprocessed MC histograms
-	TH1F* h1_prot_mom_sectors_data[N_FILES/2][N_SECTORS]; // array of TH1Fs to store all of the unprocessed data histograms
-	// read and format the data files
-	for (int file_i = 0; file_i < N_FILES; file_i++){ // for all of the files in file_names[] 
-		input = TFile::Open( TString::Format("%s", file_names[file_i].c_str()));
+	std::string mc_incl[N_RANGES];
+        std::string mc_excl[N_RANGES];
+
+        std::string data_incl[N_RANGES];
+        std::string data_excl[N_RANGES];
+
+        mc_incl[0] = mc_file_path + "Inclusive_Range1_Genie_1_56Fe_2.261000.root";
+        mc_incl[1] = mc_file_path + "Inclusive_Range2_Genie_1_56Fe_2.261000.root";
+        mc_incl[2] = mc_file_path + "Inclusive_Range3_Genie_1_56Fe_2.261000.root";
+        mc_excl[0] = mc_file_path + "Exclusive_Range1_Genie_1_56Fe_2.261000.root";
+        mc_excl[1] = mc_file_path + "Exclusive_Range2_Genie_1_56Fe_2.261000.root";
+        mc_excl[2] = mc_file_path + "Exclusive_Range3_Genie_1_56Fe_2.261000.root";
+
+        data_incl[0] = data_file_path + "Inclusive_Range1_Data__56Fe_2.261000.root";
+        data_incl[1] = data_file_path + "Inclusive_Range2_Data__56Fe_2.261000.root";
+        data_incl[2] = data_file_path + "Inclusive_Range3_Data__56Fe_2.261000.root";
+        data_excl[0] = data_file_path + "Exclusive_Range1_Data__56Fe_2.261000.root";
+        data_excl[1] = data_file_path + "Exclusive_Range2_Data__56Fe_2.261000.root";
+        data_excl[2] = data_file_path + "Exclusive_Range3_Data__56Fe_2.261000.root";
+
+
+        //exclusive histograms: proton momenta
+        TH1F* h1_prot_mom_sectors_interactions_mc[N_RANGES][N_SECTORS][N_INT];
+        
+        //TH1F* h1_prot_mom_ranges_mc[N_RANGES];
+        //TH1F* h1_prot_mom_sectors_interactions_mc[N_SECTORS][N_INT]; 
 	
-		// extract the ROOT histograms for each sector/interaction from the ith file
-		for (int sector = 0; sector < N_SECTORS; sector++) {
-			if (file_i < (N_FILES / 2)) { // MC has its data separated into interactions
-				for (int interaction = 0; interaction < N_INT; interaction++) {
-					h1_prot_mom_sectors_interactions_mc[file_i][sector][interaction] = (TH1F*)input->Get( TString::Format("h1_%i_Omega_FullyInclusive_NoQ4Weight_Theta_Slice_InSector_prot_mom_QE__%i", interaction+1, sector));
-				}
-			}
-			else { // CLAS data, on the other hand, cannot separate by interaction and thus has its data stored all in the interaction = 0 file
-				h1_prot_mom_sectors_data[file_i%(N_FILES/2)][sector] = (TH1F*)input->Get( TString::Format("h1_0_Omega_FullyInclusive_NoQ4Weight_Theta_Slice_InSector_prot_mom_QE__%i", sector));
-			}
-		}
 
-		// compile the sector/interaction plots
+	TH1F* h1_prot_mom_sectors_data[N_RANGES][N_SECTORS]; 
+
+
+	//Inclusive histograms: electron momenta
+	TH1F* h1_el_mom_sectors_interactions_mc[N_RANGES][N_SECTORS][N_INT];
+	//TH1F* h1_el_mom_ranges_mc[N_RANGES];
+	//TH1F* h1_el_mom_sectors_interactions_mc[N_SECTORS][N_INT];
+
+	TH1F *h1_el_mom_sectors_data[N_RANGES][N_SECTORS];
+
+
+	// loop over all files and extract histograms and add them up
+	for (int file_i = 0; file_i < N_RANGES; file_i++){ 
+		input_mc_incl = TFile::Open( TString::Format("%s", mc_incl[file_i].c_str()));
+		input_data_incl = TFile::Open( TString::Format("%s", data_incl[file_i].c_str()));
+		input_mc_excl = TFile::Open( TString::Format("%s", mc_excl[file_i].c_str()));
+		input_data_excl = TFile::Open( TString::Format("%s", data_excl[file_i].c_str()));
+	
+		// loop over sectors
 		for (int sector = 0; sector < N_SECTORS; sector++) {
-			if (file_i < (N_FILES/2)) { // MC has its data separated into interactions
-				for (int interaction = 0; interaction < N_INT; interaction++){
-					if (sector == 0 && interaction == 0) { continue; } // skip the first iteration because we are adding everything to that histogram
-					h1_prot_mom_sectors_interactions_mc[file_i][0][0]->Add( h1_prot_mom_sectors_interactions_mc[file_i][sector][interaction]); 
-//					h1_prot_mom_sectors_interactions_mc[file_i][0][0]->Sumw2(); // update the errors as we compile; this should produce a lot of warning statements
+
+			h1_prot_mom_sectors_data[file_i][sector] = (TH1F*)input_data_excl->Get( TString::Format("h1_0_Omega_FullyInclusive_NoQ4Weight_Theta_Slice_InSector_prot_mom_QE__%i", sector));
+
+			h1_el_mom_sectors_data[file_i][sector] = (TH1F*)input_data_incl->Get(TString::Format("h1_0_Omega_FullyInclusive_NoQ4Weight_Theta_Slice_InSector_el_mom__%i", sector));
+			//h1_el_mom_sectors_data[file_i][sector] = (TH1F*)input_data_incl->Get(TString::Format("h1_0_Omega_FullyInclusive_NoQ4Weight_Theta_Slice_InSector_prot_mom_QE__%i", sector));
+
+
+			// loop over interactions for MC
+			for (int interaction = 0; interaction < N_INT; interaction++) {
+				h1_prot_mom_sectors_interactions_mc[file_i][sector][interaction] = (TH1F*)input_mc_excl->Get( TString::Format("h1_%i_Omega_FullyInclusive_NoQ4Weight_Theta_Slice_InSector_prot_mom_QE__%i", interaction+1, sector));
+
+				h1_el_mom_sectors_interactions_mc[file_i][sector][interaction] = (TH1F*)input_mc_incl->Get(TString::Format("h1_%i_Omega_FullyInclusive_NoQ4Weight_Theta_Slice_InSector_el_mom__%i", interaction+1, sector));
+
+				//h1_el_mom_sectors_interactions_mc[file_i][sector][interaction] = (TH1F*)input_mc_incl->Get(TString::Format("h1_%i_Omega_FullyInclusive_NoQ4Weight_Theta_Slice_InSector_prot_mom_QE__%i", interaction+1, sector));
+
+
+				if(sector == 0 && interaction == 0) continue;
+				else { 
+					h1_prot_mom_sectors_interactions_mc[file_i][0][0]->Add(h1_prot_mom_sectors_interactions_mc[file_i][sector][interaction]);
+					h1_el_mom_sectors_interactions_mc[file_i][0][0]->Add(h1_el_mom_sectors_interactions_mc[file_i][sector][interaction]);
 				}
 			}
-			else { // CLAS data, on the other hand, cannot so we do not need to compile based on interactions
-				if (sector == 0) { continue; } // skip the first sector because we are adding everything to that histogram
-				h1_prot_mom_sectors_data[file_i%(N_FILES/2)][0]->Add( h1_prot_mom_sectors_data[file_i%(N_FILES/2)][sector]);
-//				h1_prot_mom_sectors_data[file_i%(N_FILES/2)][0]->Sumw2(); // update the errors as we compile; this should produce a lot of warning statements
+
+			if(sector == 0) continue;
+			else {
+				h1_prot_mom_sectors_data[file_i][0]->Add(h1_prot_mom_sectors_data[file_i][sector]);
+				h1_el_mom_sectors_data[file_i][0]->Add(h1_el_mom_sectors_data[file_i][sector]);
 			}
-		} 
+		}		
 	}
-	Double_t mc_conglomerate_trans[N_RANGES]; // transparency values for each range summed up, MC
-	Double_t mc_conglomerate_trans_err[N_RANGES];
-        Double_t data_conglomerate_trans[N_RANGES]; // transparency values for each range summed up, data
-        Double_t data_conglomerate_trans_err[N_RANGES];
-	Double_t mc_avg_prot_mom[N_RANGES]; // average of the proton momentum to be used as the x coordinate for plotting conglomerate transparencies, MC
-	Double_t data_avg_prot_mom[N_RANGES]; // average of the proton momentum to be used as the x coordinate for plotting conglomerate transparencies, data
+
+
 	
+	double mc_conglomerate_trans[N_RANGES]; // transparency values for each range summed up, MC
+        double data_conglomerate_trans[N_RANGES]; // transparency values for each range summed up, data
+
+	double mc_conglomerate_trans_err[N_RANGES]; // transparency values for each range summed up, MC
+        double data_conglomerate_trans_err[N_RANGES]; // transparency values for each range summed up, data
+
+	double mc_avg_prot_mom[N_RANGES]; // average of the proton momentum to be used as the x coordinate for plotting conglomerate transparencies, MC
+	double data_avg_prot_mom[N_RANGES]; // average of the proton momentum to be used as the x coordinate for plotting conglomerate transparencies, data
+
+
 	for (int idx = 0; idx < N_RANGES; idx++) { 
+	        h1_prot_mom_sectors_interactions_mc[idx][0][0]->Rebin( rebin_num); 
+	        h1_prot_mom_sectors_interactions_mc[idx][0][0]->Sumw2();
 
-		// format the data in the histograms so that both have the same axis bounds and number of bins
-                h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->GetXaxis()->SetRangeUser( xaxis_lb, xaxis_ub);
-                h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->GetYaxis()->SetRangeUser( yaxis_lb, yaxis_ub);
-                h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->Rebin( rebin_num); 
-                h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->Sumw2();
-		h1_prot_mom_sectors_interactions_mc[2*idx][0][0]->GetXaxis()->SetRangeUser( xaxis_lb, xaxis_ub);
-                h1_prot_mom_sectors_interactions_mc[2*idx][0][0]->GetYaxis()->SetRangeUser( yaxis_lb, yaxis_ub);
-                h1_prot_mom_sectors_interactions_mc[2*idx][0][0]->Rebin( rebin_num); 
-		h1_prot_mom_sectors_interactions_mc[2*idx][0][0]->Sumw2();
-		
-		h1_prot_mom_sectors_data[2*idx+1][0]->GetXaxis()->SetRangeUser( xaxis_lb, xaxis_ub);
-                h1_prot_mom_sectors_data[2*idx+1][0]->GetYaxis()->SetRangeUser( yaxis_lb, yaxis_ub);
-                h1_prot_mom_sectors_data[2*idx+1][0]->Rebin( rebin_num); 
-                h1_prot_mom_sectors_data[2*idx+1][0]->Sumw2();
-                h1_prot_mom_sectors_data[2*idx][0]->GetXaxis()->SetRangeUser( xaxis_lb, xaxis_ub);
-                h1_prot_mom_sectors_data[2*idx][0]->GetYaxis()->SetRangeUser( yaxis_lb, yaxis_ub);
-                h1_prot_mom_sectors_data[2*idx][0]->Rebin( rebin_num); 
-                h1_prot_mom_sectors_data[2*idx][0]->Sumw2();
-		
-		// calculate the proton transparency histograms from the respective proton momentum histograms
-		h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->Divide( h1_prot_mom_sectors_interactions_mc[2*idx][0][0]);
-		h1_prot_mom_sectors_data[2*idx+1][0]->Divide( h1_prot_mom_sectors_data[2*idx][0]);
+	        h1_el_mom_sectors_interactions_mc[idx][0][0]->Rebin(rebin_num);
+		h1_el_mom_sectors_interactions_mc[idx][0][0]->Sumw2();
 
-		// calculate the proton transparency for each range as a conglomerate
-		mc_conglomerate_trans[idx] = h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->IntegralAndError(0,h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->GetNbinsX(), mc_conglomerate_trans_err[idx]); 
-		//std::cout << "Nbins = " << h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->GetNbinsX() << "\n";
+	        h1_prot_mom_sectors_data[idx][0]->Rebin( rebin_num); 
+	        h1_prot_mom_sectors_data[idx][0]->Sumw2();
 
-		data_conglomerate_trans[idx] = h1_prot_mom_sectors_data[2*idx+1][0]->IntegralAndError(0,h1_prot_mom_sectors_data[2*idx+1][0]->GetNbinsX(), data_conglomerate_trans_err[idx]);
+	        h1_el_mom_sectors_data[idx][0]->Rebin(rebin_num);
+	        h1_el_mom_sectors_data[idx][0]->Sumw2();
 
-		Int_t mc_lowbin = h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->FindFirstBinAbove(0,1);
-		Int_t mc_highbin = h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->FindLastBinAbove(0,1);
+	        mc_avg_prot_mom[idx] = weighted_average(h1_prot_mom_sectors_interactions_mc[idx][0][0]);
+	        data_avg_prot_mom[idx] = weighted_average(h1_prot_mom_sectors_data[idx][0]);
 
-		Int_t data_lowbin = h1_prot_mom_sectors_data[2*idx+1][0]->FindFirstBinAbove(0,1);
-		Int_t data_highbin = h1_prot_mom_sectors_data[2*idx+1][0]->FindLastBinAbove(0,1);
+	        int nbins_mc_num = h1_prot_mom_sectors_interactions_mc[idx][0][0]->GetNbinsX();
+	        int nbins_data_num = h1_prot_mom_sectors_data[idx][0]->GetNbinsX();
+	        int nbins_mc_denom = h1_el_mom_sectors_interactions_mc[idx][0][0]->GetNbinsX();
+	        int nbins_data_denom = h1_el_mom_sectors_data[idx][0]->GetNbinsX();
 
-		int dataN = data_highbin - data_lowbin + 1;
-		int mcN = mc_highbin - mc_lowbin +1;
+	        double mc_num_err;
+        	double mc_denom_err;
+        	double data_num_err;
+        	double data_denom_err;
 
-		std::cout << "dataN = " << dataN << "\n";
-		std::cout << "mcN = " << mcN << "\n";
+	        // calculate the proton transparency for each range by integrating over exclusive and inclusive distributions and taking the ratios
+	        double mc_num = h1_prot_mom_sectors_interactions_mc[idx][0][0]->IntegralAndError(1,nbins_mc_num,mc_num_err);
+	        std::cout << "mc num: " << mc_num << "+/- " << mc_num_err << "\n";
+	        double mc_denom = h1_el_mom_sectors_interactions_mc[idx][0][0]->IntegralAndError(1,nbins_mc_denom,mc_denom_err);
+	        std::cout << "mc denom: " << mc_denom << "+/- " << mc_denom_err << "\n";
+	        double data_num = h1_prot_mom_sectors_data[idx][0]->IntegralAndError(1,nbins_data_num,data_num_err);
+	        std::cout << "data num: " << data_num << "+/- " << data_num_err << "\n";
+	        double data_denom = h1_el_mom_sectors_data[idx][0]->IntegralAndError(1,nbins_data_denom,data_denom_err);
+	        std::cout << "data denom: " << data_denom << "+/- " << data_denom_err << "\n";
+		data_denom *= corrRange[idx];
 
-		mc_conglomerate_trans[idx] /= mcN;
-		mc_conglomerate_trans_err[idx] /= mcN;
+		mc_conglomerate_trans[idx] = mc_num/mc_denom;
 
-		data_conglomerate_trans[idx] /= dataN;
-		data_conglomerate_trans_err[idx] /= dataN;
 
-		std::cout << "mc_conglomerate_trans[idx]: " << mc_conglomerate_trans[idx] << " +/- " << mc_conglomerate_trans_err[idx] <<  ", data_conglomerate_trans[idx]: " << data_conglomerate_trans[idx] << " +/- " << data_conglomerate_trans_err[idx] << "\n";
+		data_conglomerate_trans[idx] = data_num/data_denom;
 
-		// Calculate the mean of each range to use as the x coordinate when plotting conglomerate transparencies.
-                // Note that this is done after we have created the transparency plots as a function of proton momentum
-                // because we would otherwise have two average proton momenta, one for the exclusive+ (numerator) case and
-                // one for the inclusive (denominator) case. Rather than trying to reconcile those two averages, we find
-                // the mean of the transparency v. proton momentum histograms.
-                // If you want to change this proton momentum mean so that you consider the exclusive+ and inclusive
-                // histograms separately, make sure you calculate the mean values before doing Divide().
-                mc_avg_prot_mom[idx] = h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->GetMean();
-		data_avg_prot_mom[idx] = h1_prot_mom_sectors_data[2*idx+1][0]->GetMean();
-		
-		// format the final histogram to make it look pretty
-                h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->SetLineColor( color_options[idx]);
-		h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->GetXaxis()->SetRangeUser( xaxis_lb-0.1, xaxis_ub+0.1); // give the x-axis bounds some room
-                h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->GetYaxis()->SetRangeUser( yaxis_lb, yaxis_ub);
-                h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->SetStats( 0);
-		h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->Sumw2();
-                h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->GetXaxis()->SetTitle("Proton Momentum [GeV/c]");
-                h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->GetYaxis()->SetTitle("Proton Transparency (Exclusive+ / Inclusive)");
-                h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->GetXaxis()->CenterTitle( true);
-                h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->GetYaxis()->CenterTitle( true);
-                h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->SetTitle("Fe-56 with 2.261 GeV Beam Energy (GENIE & CLAS)");
+		mc_conglomerate_trans_err[idx] = mc_conglomerate_trans[idx]*sqrt(pow(mc_num_err/mc_num,2) + pow(mc_denom_err/mc_denom,2));
 
-                h1_prot_mom_sectors_data[2*idx+1][0]->SetMarkerColor( color_options[idx]);
-                h1_prot_mom_sectors_data[2*idx+1][0]->SetMarkerStyle( kFullCircle);
-                h1_prot_mom_sectors_data[2*idx+1][0]->SetLineColor( kBlack);
-                h1_prot_mom_sectors_data[2*idx+1][0]->GetXaxis()->SetRangeUser( xaxis_lb-0.1, xaxis_ub+0.1); // give the x-axis bounds some room
-                h1_prot_mom_sectors_data[2*idx+1][0]->GetYaxis()->SetRangeUser( yaxis_lb, yaxis_ub);
-                h1_prot_mom_sectors_data[2*idx+1][0]->SetStats( 0);
-                h1_prot_mom_sectors_data[2*idx+1][0]->Sumw2(); 
-                h1_prot_mom_sectors_data[2*idx+1][0]->GetXaxis()->SetTitle("Proton Momentum [GeV/c]");
-                h1_prot_mom_sectors_data[2*idx+1][0]->GetYaxis()->SetTitle("Proton Transparency (Exclusive+ / Inclusive)");
-                h1_prot_mom_sectors_data[2*idx+1][0]->GetXaxis()->CenterTitle( true);
-                h1_prot_mom_sectors_data[2*idx+1][0]->GetYaxis()->CenterTitle( true);
-                h1_prot_mom_sectors_data[2*idx+1][0]->SetTitle("Fe-56 with 2.261 GeV Beam Energy (GENIE & CLAS)");
+		data_conglomerate_trans_err[idx] = data_conglomerate_trans[idx]*sqrt(pow(data_num_err/data_num,2) + pow(data_denom_err/data_denom,2));
+
+		//mc_conglomerate_trans[idx] *= corrRange[idx];
+
+		std::cout << "MC" << "\n";
+		std::cout << "P proton = " << mc_avg_prot_mom[idx]<<", T =  " << mc_conglomerate_trans[idx] << "+/- " << mc_conglomerate_trans_err[idx] << "\n";
+		std::cout << "Data" << "\n";
+		std::cout << "P proton = " << data_avg_prot_mom[idx]<<", T =  " << data_conglomerate_trans[idx] << "+/- " << data_conglomerate_trans_err[idx]<< "\n";
+
 	}
-	
-	// draw the histograms
-	for (int idx = 0; idx < N_RANGES; idx++) {
-		h1_prot_mom_sectors_interactions_mc[2*idx+1][0][0]->Draw( mc_draw_options[idx]);
-                h1_prot_mom_sectors_data[2*idx+1][0]->Draw( data_draw_options[idx]);
-	}	
-
-	// draw a legend for our histogram
-        TLegend *legend = new TLegend( leg_x1, leg_y1, leg_x2, leg_y2);
-        legend->AddEntry( h1_prot_mom_sectors_interactions_mc[1][0][0], "GENIE, Range 1");
-        legend->AddEntry( h1_prot_mom_sectors_interactions_mc[3][0][0], "GENIE, Range 2");
-        legend->AddEntry( h1_prot_mom_sectors_interactions_mc[5][0][0], "GENIE, Range 3");
-        legend->AddEntry( h1_prot_mom_sectors_data[1][0], "CLAS, Range 1");
-        legend->AddEntry( h1_prot_mom_sectors_data[3][0], "CLAS, Range 2");
-        legend->AddEntry( h1_prot_mom_sectors_data[5][0], "CLAS, Range 3");
-        legend->SetBorderSize( 0);
-        legend->SetFillStyle( 0);
-	legend->Draw();
-	
-	// save the histogram
-	c->SetLeftMargin( 0.15);
-	c->SetBottomMargin( 0.15);
-	c->Update();
-	c->SaveAs(TString::Format("../output/trans_vs_prot_mom/trans_vs_prot_mom_target56Fe_beamEnergy2261_exclusivePlus.pdf"));
 
 	// CONGLOMERATE HISTOGRAM CODE BELOW --------------------------------------------
 	TGraph *g1_mc_conglomerate_trans = new TGraph( N_RANGES, mc_avg_prot_mom, mc_conglomerate_trans);
@@ -243,26 +246,19 @@ void prot_trans_vs_prot_mom_target56Fe_beamEnergy2261_exclusivePlus(){
 
 	g1_mc_conglomerate_trans->SetMarkerStyle( kFullSquare);
 	g1_mc_conglomerate_trans->SetMarkerColor( kGreen+2);
-	//g1_mc_conglomerate_trans->SetLineColor( kBlack);
+	g1_mc_conglomerate_trans->SetLineColor( kBlack);
 	g1_mc_conglomerate_trans->GetXaxis()->SetRangeUser( xaxis_lb-0.1, xaxis_ub+0.1); // give the x-axis bounds some room
 	g1_mc_conglomerate_trans->GetYaxis()->SetRangeUser( yaxis_lb, yaxis_ub);
-	g1_data_conglomerate_trans->SetMarkerStyle(kFullCircle);
-	g1_data_conglomerate_trans->SetMarkerColor(kBlack);
-	g1_data_conglomerate_trans->GetXaxis()->SetTitle("Proton momentum (GeV)");
-	g1_data_conglomerate_trans->GetYaxis()->SetTitle("Transparency");
-	g1_data_conglomerate_trans->SetTitle("2.261 GeV e- + 56Fe");
 
 	TCanvas* c2;
         c2 = new TCanvas( TString::Format("c2"), TString::Format("c2"), 800, 600);
         c2->cd();
-        g1_data_conglomerate_trans->Draw("ap");
-        g1_mc_conglomerate_trans->Draw("p same");
-        TFile *output = TFile::Open("../output/trans_vs_prot_mom/56Fe_2261.root", "RECREATE");
+        g1_mc_conglomerate_trans->Draw();
+        g1_data_conglomerate_trans->Draw("same");
+
+        TFile *output = TFile::Open("../output/trans_vs_prot_mom/56Fe_4461.root", "RECREATE");
         output->cd();
         g1_data_conglomerate_trans->Write("data_graph");
         g1_mc_conglomerate_trans->Write("genie_graph");
-
-
         //c2->SaveAs(TString::Format("../output/trans_vs_prot_mom/trans_vs_prot_mom_target56Fe_beamEnergy2261_exclusivePlus_conglom.pdf"));
-
 }

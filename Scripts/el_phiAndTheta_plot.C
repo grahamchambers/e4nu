@@ -96,9 +96,9 @@ void el_phiAndTheta_plot( std::string file_name){
     std::string h1_el_theta_save_path ("invalid");
     std::string h1_el_phi_save_path ("invalid");
 
-    h2_Electron_Theta_Phi_save_path = "../output/h2_Electron_Theta_Phi/"+TString(info)+TString(cuts)+"MottXSecEq1.pdf"; 
-    h1_el_theta_save_path = "../output/h1_el_theta/"+TString(info)+TString(cuts)+"MottXSecEq1_noCuts.pdf"; 
-    h1_el_phi_save_path = "../output/h1_el_phi/"+TString(info)+TString(cuts)+"MottXSecEq1_noCuts.pdf"; 
+    h2_Electron_Theta_Phi_save_path = "../output2/h2_Electron_Theta_Phi/"+TString(info)+TString(cuts)+"MottXSecEq1.pdf"; 
+    h1_el_theta_save_path = "../output2/h1_el_theta/"+TString(info)+TString(cuts)+"MottXSecEq1_noCuts.pdf"; 
+    h1_el_phi_save_path = "../output2/h1_el_phi/"+TString(info)+TString(cuts)+"MottXSecEq1_noCuts.pdf"; 
 
 
     // draw the theta-phi histogram and save it as a PDF file

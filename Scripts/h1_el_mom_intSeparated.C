@@ -113,7 +113,7 @@ void h1_el_mom_intSeparated( std::string file_name){
         h1_el_momentum[i]->SetLineColor( color_options[i-20]);
         h1_el_momentum[i]->GetXaxis()->SetTitle("Electron Momentum [GeV/c]");
         h1_el_momentum[i]->GetYaxis()->SetTitle("Events");
-        h1_el_momentum[i]->GetXaxis()->SetRangeUser( 0, 3);
+        h1_el_momentum[i]->GetXaxis()->SetRangeUser( 0, 4);
         h1_el_momentum[i]->GetXaxis()->CenterTitle( true);
         h1_el_momentum[i]->GetYaxis()->CenterTitle( true);
 //        h1_el_momentum[i]->GetXaxis()->SetTitleSize( 0.06);
@@ -150,9 +150,9 @@ void h1_el_mom_intSeparated( std::string file_name){
 
     // save this histogram as a PDF file
     std::string save_file_path ("invalid");
-    save_file_path = "../output/h1_el_mom_intSeparated/"+TString(info)+TString(cuts)+"MottXSecEq1.pdf"; 
+    save_file_path = "../output2/h1_el_mom_intSeparated/"+TString(info)+TString(cuts)+"MottXSecEq1.pdf"; 
     
-    c->SaveAs( TString::Format("%s", save_file_path.c_str()));
+    //c->SaveAs( TString::Format("%s", save_file_path.c_str()));
 
     // smithja: this section of code integrates the distributions and prints
     //          it to the screen

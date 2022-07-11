@@ -43,16 +43,17 @@ void h1_el_mom_mc_data( int range){
     std::string file_name2;
 
     if (range == 1) {
-        file_name1 = "/genie/app/users/nsteinbe/e4nu/CLAS/GENIE/incl_range1_Genie_1_C12_2.261000.root";
-        file_name2 = "/genie/app/users/nsteinbe/e4nu/CLAS/DATA/incl_range1_Data__C12_2.261000.root";
+        file_name1 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/sis14/Inclusive/Exclusive_Range1_Genie_2_C12_2.261000.root";
+        file_name2 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis14/Inclusive/Exclusive_Range1_Data__C12_2.261000.root";
     }
     else if (range == 2) {
-        file_name1 = "/genie/app/users/nsteinbe/e4nu/CLAS/GENIE/incl_range2_Genie_1_C12_2.261000.root";
-        file_name2 = "/genie/app/users/nsteinbe/e4nu/CLAS/DATA/incl_range2_Data__C12_2.261000.root";
+        file_name1 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis14/Inclusive/Inclusive_Range2_Genie_1_56Fe_4.461000.root";
+        file_name2 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis14/Inclusive/Inclusive_Range2_Data__56Fe_4.461000.root";
     }
     else {
-        file_name1 = "/genie/app/users/nsteinbe/e4nu/CLAS/GENIE/incl_range3_Genie_1_C12_2.261000.root";
-        file_name2 = "/genie/app/users/nsteinbe/e4nu/CLAS/DATA/incl_range3_Data__C12_2.261000.root";
+        file_name1 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis14/Inclusive/Inclusive_Range3_Genie_1_56Fe_4.461000.root";
+        file_name2 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis14/Inclusive/Inclusive_Range3_Data__56Fe_4.461000.root";
+
     }
 
     TFile *input1 = TFile::Open( TString(file_name1));
@@ -103,6 +104,8 @@ void h1_el_mom_mc_data( int range){
     TCanvas* c;
     c = new TCanvas(TString::Format("c"), TString::Format("c"), 800, 600);
 
+   // cout << "There are " << h1_el_momentum_mc[0][0]->Integral() << " many events in the mc." << endl;
+    //cout << "There are " << h1_el_momentum_data[5]->Integral() << " many events in the data." << endl;
     // format the histogram
     h1_el_momentum_mc[0][0]->Sumw2();
     h1_el_momentum_mc[0][0]->Rebin( 25);
@@ -112,7 +115,7 @@ void h1_el_mom_mc_data( int range){
     h1_el_momentum_mc[0][0]->SetStats( 0); 
     h1_el_momentum_mc[0][0]->GetXaxis()->SetTitle("Electron Momentum [GeV/c]");
     h1_el_momentum_mc[0][0]->GetYaxis()->SetTitle("Events");
-    h1_el_momentum_mc[0][0]->GetXaxis()->SetRangeUser( 0, 3);
+    h1_el_momentum_mc[0][0]->GetXaxis()->SetRangeUser( 0, 6);
     h1_el_momentum_mc[0][0]->GetXaxis()->CenterTitle( true);
     h1_el_momentum_mc[0][0]->GetYaxis()->CenterTitle( true);
     h1_el_momentum_mc[0][0]->SetTitle(TString(info1)+TString(cuts1));
@@ -120,7 +123,7 @@ void h1_el_mom_mc_data( int range){
     h1_el_momentum_data[5]->Sumw2();
     h1_el_momentum_data[5]->Rebin( 25);
     h1_el_momentum_data[5]->SetStats( 0); 
-    h1_el_momentum_data[5]->GetXaxis()->SetRangeUser( 0, 3);
+    h1_el_momentum_data[5]->GetXaxis()->SetRangeUser( 0, 6);
     h1_el_momentum_data[5]->SetMarkerStyle(2);
     h1_el_momentum_data[5]->SetMarkerColor(kBlack);
 
@@ -144,9 +147,7 @@ void h1_el_mom_mc_data( int range){
 
     // save this histogram as a PDF file
     std::string save_file_path ("invalid");
-
-
-    save_file_path = "../output/h1_el_mom/"+TString(info1)+TString(cuts1)+"MottXSecEq1.pdf"; 
+    save_file_path = "../output2/Analysis14/h1_el_mom/"+TString(info1)+TString(cuts1)+"MottXSecEq1.pdf"; 
     c->SaveAs( TString::Format("%s", save_file_path.c_str()));
 
 }

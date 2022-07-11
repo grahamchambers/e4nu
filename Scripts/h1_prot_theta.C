@@ -44,16 +44,16 @@ void h1_prot_theta( int range){
     std::string file_name2;
 
     if (range == 1) {
-        file_name1 = "/genie/app/users/nsteinbe/e4nu/CLAS/GENIE/Second_try/Excl_Range1_Genie_1_C12_2.261000.root";
-        file_name2 = "/genie/app/users/nsteinbe/e4nu/CLAS/DATA/Second_try/Excl_Range1_Data__C12_2.261000.root";
+        file_name1 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis6/Inclusive_Range1_Genie_1_C12_2.261000.root";
+        file_name2 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis6/Inclusive_Range1_Genie_1_C12_2.261000.root";
     }
     else if (range == 2) {
-        file_name1 = "/genie/app/users/nsteinbe/e4nu/CLAS/GENIE/Second_try/Excl_Range2_Genie_1_C12_2.261000.root";
-        file_name2 = "/genie/app/users/nsteinbe/e4nu/CLAS/DATA/Second_try/Excl_Range2_Data__C12_2.261000.root";
+        file_name1 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis15/Exclusive/Exclusive_Range1_Genie_1_C12_2.261000.root";
+        file_name2 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis15/Exclusive/Exclusive_Range1_Genie_1_C12_2.261000.root";
     }
     else {
-        file_name1 = "/genie/app/users/nsteinbe/e4nu/CLAS/GENIE/Second_try/Excl_Range3_Genie_1_C12_2.261000.root";
-        file_name2 = "/genie/app/users/nsteinbe/e4nu/CLAS/DATA/Second_try/Excl_Range3_Data__C12_2.261000.root";
+        file_name1 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis6/Inclusive_Range3_Genie_1_C12_2.261000.root";
+        file_name2 = "/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis6/Inclusive_Range3_Genie_1_C12_2.261000.root";
     }
 
 
@@ -191,7 +191,7 @@ void h1_prot_theta( int range){
     //cout << "File saved at: " << save_file_path << "\n";
     //h1_prot_momentum[0]->Write();
     //f->Close();
-    c->SaveAs(TString(save_file_path)+".pdf");
+//    c->SaveAs(TString(save_file_path)+".pdf");
     // smithja: this section of code integrates the distribution and prints it to the screen
     /*
     int num_events = h1_prot_momentum[0]->Integral();
