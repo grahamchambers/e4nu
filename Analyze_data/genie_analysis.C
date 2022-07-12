@@ -78,7 +78,7 @@ void genie_analysis::Loop() {
 
 	bool UseAllSectors = false;
 	bool ApplyFiducials = true;
-	bool ApplyAccWeights = true;
+	bool ApplyAccWeights = false;
 	bool ApplyReso = true;
 
 	bool TruthLevel1p0piSignalStudy = false;
@@ -119,9 +119,9 @@ void genie_analysis::Loop() {
 
 	Long64_t nentries = fChain->GetEntriesFast();
 	//nentries = 1000;
-	nentries = 1000000;
+	//nentries = 1000000;
 	//nentries = 5000000;
-	//nentries = 10000000; // smithja: max for C-12 simulation to not crash
+	nentries = 10000000; // smithja: max for C-12 simulation to not crash
 	//nentries = 200000000;
 
 	// smithja: Tells the user if nentries is maually set and if the
@@ -275,7 +275,7 @@ void genie_analysis::Loop() {
 	// Number of Entries
 	t_nentries->SetVal(nentries);
         std::cout << "" << "\n";
-	FileName = ("/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis22/Exclusive/Exclusive_Range1_"+std::string(t_Run->GetTitle()) + "_" +std::string(t_target->GetTitle()) + "_" + std::to_string(t_beam_en->GetVal()) + ".root").c_str();
+	FileName = ("/genie/app/users/gchamber/e4nu_2022/e4nu/output/output2022/Analysis23/Exclusive/Exclusive_noaccept_Sector2_Range2_"+std::string(t_Run->GetTitle()) + "_" +std::string(t_target->GetTitle()) + "_" + std::to_string(t_beam_en->GetVal()) + ".root").c_str();
 	file_out = new TFile( FileName, "Recreate");
 
 	// Write out TList of run options see (https://root.cern/doc/master/classTCollection.html#a3992401270fb2383d6d6003b60d81146)
@@ -759,8 +759,8 @@ void genie_analysis::Loop() {
 		int ElectronSector = el_phi_mod / 60.;
 		PassCounter01 ++;	
 		if (fApplyPhiSliceEl_Sectors16) { if((ElectronSector != 5 && ElectronSector != 0)) continue; }
-		if (fApplyPhiSliceEl_Sectors126) { if(ElectronSector != 5 && ElectronSector != 1 && ElectronSector != 0) continue; }
-		//if (fApplyPhiSliceEl_Sectors126) { if(ElectronSector != 0) continue; }
+		//if (fApplyPhiSliceEl_Sectors126) { if(ElectronSector != 5 && ElectronSector != 1 && ElectronSector != 0) continue; }
+		if (fApplyPhiSliceEl_Sectors126) { if(ElectronSector != 1) continue; }
 		//if (fApplyPhiSliceEl_Sectors126) { if(ElectronSector != 5) continue; }
 
 		//Calculated Mott Cross Section and Weights for Inclusive Histograms
