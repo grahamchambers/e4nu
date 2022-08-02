@@ -1,12 +1,3 @@
-// This file takes in GENIE Monte Carlo (MC) data for the C-12
-// targets with a 4.461 GeV beam energy and calculates the proton 
-// transparency (ratio of exclusive cut case events to inclusive cut case 
-// events) as a function of proton momentum. Note this script take 
-// the exclusive+ case as the numerator in the transparency ratio. 
-//
-// Author: Jacob Smith (smithja)
-// Date of Creation: 11/08/2021 
-
 #include <TFile.h>
 #include <TH1D.h>
 #include <TF1.h>
