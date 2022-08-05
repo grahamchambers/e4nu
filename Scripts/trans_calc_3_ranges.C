@@ -1,3 +1,5 @@
+//This script calculates the proton transparency for data and MC, which are inputs having gone through the genie_analysis analysis. The neutron contamination correction is input as an array (get these values from the input MC). The MEC contamination is calculated in this script using the input MC, so even if you just care about calculating the data transparency, remember that the input MC is imporant and will affect the data calculation. If you have only one or two ranges, use the other trans_calc_n_range.C files.
+
 #include <TFile.h>
 #include <TH1D.h>
 #include <TF1.h>
